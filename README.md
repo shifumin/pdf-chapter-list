@@ -67,12 +67,12 @@ For Japanese PDFs:
 
 - 表紙 (p.1)
 - 目次 (p.2)
-- 第Ⅰ部　基礎知識 (p.5)
-  - 1章　はじめに (p.7)
-    - 1.1　背景と目的 (p.8)
-    - 1.2　本書の構成 (p.10)
-  - 2章　環境構築 (p.15)
-- 第Ⅱ部　実践編 (p.25)
+- 第Ⅰ部 基礎知識 (p.5)
+  - 1章 はじめに (p.7)
+    - 1.1 背景と目的 (p.8)
+    - 1.2 本書の構成 (p.10)
+  - 2章 環境構築 (p.15)
+- 第Ⅱ部 実践編 (p.25)
 ```
 
 ## Development
@@ -106,6 +106,9 @@ bundle exec ruby spec/support/generate_test_pdfs.rb
 - Extracts PDF outline/bookmark structure
 - Displays hierarchical chapter structure in Markdown format
 - Shows page numbers for each chapter when available
+- Supports multiple PDF destination formats:
+  - Array-based destinations (standard format)
+  - Named destinations like "p35" (O'Reilly and other publishers)
 - Handles UTF-16BE encoding (common in Japanese PDFs)
 - Properly decodes international characters
 - Removes BOM and other invisible characters
