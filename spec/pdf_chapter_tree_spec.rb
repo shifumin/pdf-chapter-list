@@ -69,11 +69,11 @@ RSpec.describe PDFChapterTree do
         markdown = extractor.to_markdown
 
         expect(markdown).to include('# sample_with_outline.pdf')
-        expect(markdown).to include('- **1. Introduction**')
-        expect(markdown).to include('  - **1.1 Background**')
-        expect(markdown).to include('  - **1.2 Overview**')
-        expect(markdown).to include('- **2. Getting Started**')
-        expect(markdown).to include('- **3. Advanced Topics**')
+        expect(markdown).to include('- 1. Introduction')
+        expect(markdown).to include('  - 1.1 Background')
+        expect(markdown).to include('  - 1.2 Overview')
+        expect(markdown).to include('- 2. Getting Started')
+        expect(markdown).to include('- 3. Advanced Topics')
       end
     end
 
@@ -93,16 +93,16 @@ RSpec.describe PDFChapterTree do
         markdown = extractor.to_markdown
 
         expect(markdown).to include('# japanese_with_outline.pdf')
-        expect(markdown).to include('- **表紙**')
-        expect(markdown).to include('- **目次**')
-        expect(markdown).to include('- **第Ⅰ部　基礎知識**')
-        expect(markdown).to include('  - **1章　はじめに**')
-        expect(markdown).to include('    - **1.1　背景と目的**')
-        expect(markdown).to include('    - **1.2　本書の構成**')
-        expect(markdown).to include('  - **2章　環境構築**')
-        expect(markdown).to include('    - **2.1　必要なツール**')
-        expect(markdown).to include('- **第Ⅱ部　実践編**')
-        expect(markdown).to include('  - **3章　基本的な使い方**')
+        expect(markdown).to include('- 表紙')
+        expect(markdown).to include('- 目次')
+        expect(markdown).to include('- 第Ⅰ部　基礎知識')
+        expect(markdown).to include('  - 1章　はじめに')
+        expect(markdown).to include('    - 1.1　背景と目的')
+        expect(markdown).to include('    - 1.2　本書の構成')
+        expect(markdown).to include('  - 2章　環境構築')
+        expect(markdown).to include('    - 2.1　必要なツール')
+        expect(markdown).to include('- 第Ⅱ部　実践編')
+        expect(markdown).to include('  - 3章　基本的な使い方')
       end
     end
   end
