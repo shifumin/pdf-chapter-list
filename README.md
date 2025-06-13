@@ -59,6 +59,19 @@ The script outputs the PDF's chapter structure in Markdown format:
 - **3. Advanced Topics** (p.20)
 ```
 
+For Japanese PDFs:
+
+```markdown
+# japanese_book.pdf
+
+- **表紙** (p.1)
+- **目次** (p.2)
+- **第Ⅰ部　基礎知識** (p.10)
+  - **1章　はじめに** (p.12)
+    - **1.1　背景と目的** (p.13)
+    - **1.2　本書の構成** (p.15)
+```
+
 ## Development
 
 ### Running Tests
