@@ -65,7 +65,7 @@ bundle exec rubocop -A
 - Uses PDF::Reader 2.x objects API to access PDF catalog and outline structure
 - Page numbers extracted from PDF outline destinations when available
 - Recursive processing for nested chapter structures
-- Output format: Markdown with bold chapter titles and page numbers in parentheses
+- Output format: Markdown with chapter titles and page numbers in parentheses
 - Encoding handling for international characters (especially Japanese PDFs)
 
 ### Key Methods
