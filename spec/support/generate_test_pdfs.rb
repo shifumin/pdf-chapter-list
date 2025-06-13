@@ -135,17 +135,17 @@ Prawn::Document.generate('spec/fixtures/japanese_with_outline.pdf') do |pdf|
   pdf.outline.define do
     page(title: '表紙'.encode('UTF-16BE'), destination: 2)
     page(title: '目次'.encode('UTF-16BE'), destination: 3)
-    section('第Ⅰ部　基礎知識'.encode('UTF-16BE'), destination: 4) do
-      section('1章　はじめに'.encode('UTF-16BE'), destination: 5) do
-        page(title: '1.1　背景と目的'.encode('UTF-16BE'), destination: 6)
-        page(title: '1.2　本書の構成'.encode('UTF-16BE'), destination: 7)
+    section('第Ⅰ部 基礎知識'.encode('UTF-16BE'), destination: 4) do
+      section('1章 はじめに'.encode('UTF-16BE'), destination: 5) do
+        page(title: '1.1 背景と目的'.encode('UTF-16BE'), destination: 6)
+        page(title: '1.2 本書の構成'.encode('UTF-16BE'), destination: 7)
       end
-      section('2章　環境構築'.encode('UTF-16BE'), destination: 8) do
-        page(title: '2.1　必要なツール'.encode('UTF-16BE'), destination: 9)
+      section('2章 環境構築'.encode('UTF-16BE'), destination: 8) do
+        page(title: '2.1 必要なツール'.encode('UTF-16BE'), destination: 9)
       end
     end
-    section('第Ⅱ部　実践編'.encode('UTF-16BE'), destination: 10) do
-      page(title: '3章　基本的な使い方'.encode('UTF-16BE'), destination: 11)
+    section('第Ⅱ部 実践編'.encode('UTF-16BE'), destination: 10) do
+      page(title: '3章 基本的な使い方'.encode('UTF-16BE'), destination: 11)
     end
   end
 end
