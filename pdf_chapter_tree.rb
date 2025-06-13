@@ -131,7 +131,7 @@ class PDFChapterTree
     chapters.each do |chapter|
       level_indent = '  ' * chapter[:level]
       page_info = chapter[:page] ? " (p.#{chapter[:page]})" : ''
-      output << "#{level_indent}- **#{chapter[:title]}**#{page_info}"
+      output << "#{level_indent}- #{chapter[:title]}#{page_info}"
     end
   end
 end
