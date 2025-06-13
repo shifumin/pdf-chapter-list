@@ -106,4 +106,58 @@ RSpec.describe PDFChapterTree do
       end
     end
   end
+
+  describe '#extract_page_number' do
+    let(:extractor) { described_class.new(valid_pdf_path) }
+    let(:reader) { double('PDF::Reader') }
+    
+    before do
+      allow(PDF::Reader).to receive(:new).and_return(reader)
+      allow(reader).to receive(:objects).and_return(double('objects'))
+      allow(reader).to receive(:pages).and_return([])
+    end
+
+    context 'with named destination (string format like "p35")' do
+      it 'extracts page number from string pattern' do
+        item = { A: { D: 'p35' } }
+        
+        # Access private method for testing
+        page_num = extractor.send(:extract_page_number, reader, item)
+        
+        expect(page_num).to eq(35)
+      end
+
+      it 'handles various page number formats' do
+        test_cases = {
+          'p1' => 1,
+          'p99' => 99,
+          'p123' => 123,
+          'page1' => nil,  # Different format, not handled
+          'p' => nil,      # No number
+          '' => nil        # Empty string
+        }
+        
+        test_cases.each do |dest_string, expected|
+          item = { A: { D: dest_string } }
+          page_num = extractor.send(:extract_page_number, reader, item)
+          expect(page_num).to eq(expected), "Expected '#{dest_string}' to return #{expected.inspect}"
+        end
+      end
+    end
+
+    context 'with Action containing string destination' do
+      it 'resolves Action reference and extracts page from string' do
+        action_ref = double('PDF::Reader::Reference')
+        action_obj = { D: 'p42', S: :GoTo }
+        item = { A: action_ref }
+        
+        allow(action_ref).to receive(:is_a?).with(PDF::Reader::Reference).and_return(true)
+        allow(reader.objects).to receive(:[]).with(action_ref).and_return(action_obj)
+        
+        page_num = extractor.send(:extract_page_number, reader, item)
+        
+        expect(page_num).to eq(42)
+      end
+    end
+  end
 end
