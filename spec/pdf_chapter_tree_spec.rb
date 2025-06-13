@@ -5,6 +5,7 @@ require 'spec_helper'
 RSpec.describe PDFChapterTree do
   let(:valid_pdf_path) { 'spec/fixtures/sample_with_outline.pdf' }
   let(:pdf_without_outline_path) { 'spec/fixtures/sample_without_outline.pdf' }
+  let(:japanese_pdf_path) { 'spec/fixtures/japanese_with_outline.pdf' }
   let(:non_existent_path) { 'spec/fixtures/non_existent.pdf' }
   let(:non_pdf_path) { 'spec/fixtures/sample.txt' }
 
@@ -83,6 +84,25 @@ RSpec.describe PDFChapterTree do
 
         expect(markdown).to include('# sample_without_outline.pdf')
         expect(markdown).to include('No outline/chapters found in this PDF.')
+      end
+    end
+
+    context 'with Japanese PDF containing UTF-16BE encoded outline' do
+      it 'correctly decodes and displays Japanese titles' do
+        extractor = described_class.new(japanese_pdf_path)
+        markdown = extractor.to_markdown
+
+        expect(markdown).to include('# japanese_with_outline.pdf')
+        expect(markdown).to include('- **表紙**')
+        expect(markdown).to include('- **目次**')
+        expect(markdown).to include('- **第Ⅰ部　基礎知識**')
+        expect(markdown).to include('  - **1章　はじめに**')
+        expect(markdown).to include('    - **1.1　背景と目的**')
+        expect(markdown).to include('    - **1.2　本書の構成**')
+        expect(markdown).to include('  - **2章　環境構築**')
+        expect(markdown).to include('    - **2.1　必要なツール**')
+        expect(markdown).to include('- **第Ⅱ部　実践編**')
+        expect(markdown).to include('  - **3章　基本的な使い方**')
       end
     end
   end
