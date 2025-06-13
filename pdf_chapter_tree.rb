@@ -101,6 +101,10 @@ class PDFChapterTree
 
     # Remove BOM and other invisible characters
     str = str.delete_prefix("\uFEFF") # Remove BOM
+
+    # Replace full-width space with half-width space
+    str = str.tr('　', ' ')
+
     str.strip # Remove leading/trailing whitespace
   end
 
