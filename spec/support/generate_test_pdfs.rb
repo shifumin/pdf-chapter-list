@@ -150,7 +150,76 @@ Prawn::Document.generate('spec/fixtures/japanese_with_outline.pdf') do |pdf|
   end
 end
 
+# Generate PDF with named destinations (like O'Reilly books)
+# Note: Prawn doesn't directly support named destinations in outline,
+# so we'll simulate the structure by creating a PDF that our code will handle
+Prawn::Document.generate('spec/fixtures/named_dest_outline.pdf') do |pdf|
+  pdf.text 'Technical Book with Named Destinations', size: 24, style: :bold
+  pdf.move_down 20
+
+  # Preface
+  pdf.start_new_page
+  pdf.text 'Preface', size: 20, style: :bold
+  
+  # Table of Contents
+  pdf.start_new_page
+  pdf.text 'Table of Contents', size: 20, style: :bold
+  
+  # Part 1
+  pdf.start_new_page
+  pdf.text 'Part I - Fundamentals', size: 20, style: :bold
+  
+  # Chapter 1
+  pdf.start_new_page
+  pdf.text 'Chapter 1 - Introduction', size: 18, style: :bold
+  
+  # Section 1.1
+  pdf.start_new_page
+  pdf.text '1.1 Getting Started', size: 16
+  
+  # Section 1.2
+  pdf.start_new_page
+  pdf.text '1.2 Basic Concepts', size: 16
+  
+  # Chapter 2
+  pdf.start_new_page
+  pdf.text 'Chapter 2 - Advanced Topics', size: 18, style: :bold
+  
+  # Section 2.1
+  pdf.start_new_page
+  pdf.text '2.1 Deep Dive', size: 16
+  
+  # Part 2
+  pdf.start_new_page
+  pdf.text 'Part II - Practice', size: 20, style: :bold
+  
+  # Chapter 3
+  pdf.start_new_page
+  pdf.text 'Chapter 3 - Real World Examples', size: 18, style: :bold
+  
+  # Create outline
+  # Since Prawn doesn't support creating PDFs with string destinations directly,
+  # we'll create a normal outline and our test will mock the string destination behavior
+  pdf.outline.define do
+    page(title: 'Preface', destination: 2)
+    page(title: 'Table of Contents', destination: 3)
+    section('Part I - Fundamentals', destination: 4) do
+      section('Chapter 1 - Introduction', destination: 5) do
+        page(title: '1.1 Getting Started', destination: 6)
+        page(title: '1.2 Basic Concepts', destination: 7)
+      end
+      section('Chapter 2 - Advanced Topics', destination: 8) do
+        page(title: '2.1 Deep Dive', destination: 9)
+      end
+    end
+    section('Part II - Practice', destination: 10) do
+      page(title: 'Chapter 3 - Real World Examples', destination: 11)
+    end
+  end
+end
+
 puts 'Test PDFs generated successfully in spec/fixtures/'
 puts '- sample_with_outline.pdf'
 puts '- sample_without_outline.pdf'
 puts '- japanese_with_outline.pdf'
+puts '- named_dest_outline.pdf'
