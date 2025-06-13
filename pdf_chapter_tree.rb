@@ -105,7 +105,18 @@ class PDFChapterTree
   end
 
   def extract_page_number(reader, item)
-    dest = item[:Dest] || (item[:A] && item[:A][:D])
+    # Try direct Dest first
+    dest = item[:Dest]
+
+    # If no direct Dest, check for Action
+    if !dest && item[:A]
+      action = item[:A]
+      # Resolve Action reference if needed
+      action = reader.objects[action] if action.is_a?(PDF::Reader::Reference)
+      # Get Dest from Action
+      dest = action[:D] if action.is_a?(Hash)
+    end
+
     return nil unless dest
 
     # If dest is a reference, resolve it
@@ -120,6 +131,13 @@ class PDFChapterTree
           return index + 1
         end
       end
+    elsif dest.is_a?(String)
+      # Handle named destinations (e.g., "p35")
+      # For simple page number patterns, extract directly
+      return ::Regexp.last_match(1).to_i if dest =~ /^p(\d+)$/
+      
+      # For complex named destinations, would need to resolve through Names dictionary
+      # This is not implemented yet as it requires complex PDF structure parsing
     end
 
     nil
