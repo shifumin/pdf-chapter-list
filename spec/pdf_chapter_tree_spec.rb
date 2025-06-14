@@ -180,8 +180,7 @@ RSpec.describe PDFChapterTree do
 
     before do
       allow(PDF::Reader).to receive(:new).and_return(reader)
-      allow(reader).to receive(:objects).and_return(double('objects'))
-      allow(reader).to receive(:pages).and_return([])
+      allow(reader).to receive_messages(objects: double('objects'), pages: [])
     end
 
     context 'with named destination (string format like "p35")' do
