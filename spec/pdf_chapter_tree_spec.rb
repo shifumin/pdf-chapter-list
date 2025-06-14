@@ -75,6 +75,45 @@ RSpec.describe PDFChapterTree do
         expect(markdown).to include('- 2. Getting Started')
         expect(markdown).to include('- 3. Advanced Topics')
       end
+
+      context 'with depth limit' do
+        it 'shows only specified levels when depth is 1' do
+          extractor = described_class.new(valid_pdf_path)
+          markdown = extractor.to_markdown(max_depth: 1)
+
+          expect(markdown).to include('# sample_with_outline.pdf')
+          expect(markdown).to include('- 1. Introduction')
+          expect(markdown).to include('- 2. Getting Started')
+          expect(markdown).to include('- 3. Advanced Topics')
+          # Should not include level 2 items
+          expect(markdown).not_to include('  - 1.1 Background')
+          expect(markdown).not_to include('  - 1.2 Overview')
+        end
+
+        it 'shows two levels when depth is 2' do
+          extractor = described_class.new(valid_pdf_path)
+          markdown = extractor.to_markdown(max_depth: 2)
+
+          expect(markdown).to include('# sample_with_outline.pdf')
+          expect(markdown).to include('- 1. Introduction')
+          expect(markdown).to include('  - 1.1 Background')
+          expect(markdown).to include('  - 1.2 Overview')
+          expect(markdown).to include('- 2. Getting Started')
+          # If there were level 3 items, they should not be included
+        end
+
+        it 'shows all levels when depth exceeds available levels' do
+          extractor = described_class.new(valid_pdf_path)
+          markdown = extractor.to_markdown(max_depth: 10)
+
+          # Should show all available levels (same as no limit)
+          expect(markdown).to include('# sample_with_outline.pdf')
+          expect(markdown).to include('- 1. Introduction')
+          expect(markdown).to include('  - 1.1 Background')
+          expect(markdown).to include('  - 1.2 Overview')
+          expect(markdown).to include('- 2. Getting Started')
+        end
+      end
     end
 
     context 'with PDF without outline' do
@@ -104,13 +143,41 @@ RSpec.describe PDFChapterTree do
         expect(markdown).to include('- 第Ⅱ部 実践編')
         expect(markdown).to include('  - 3章 基本的な使い方')
       end
+
+      context 'with depth limit' do
+        it 'shows only top level when depth is 1' do
+          extractor = described_class.new(japanese_pdf_path)
+          markdown = extractor.to_markdown(max_depth: 1)
+
+          expect(markdown).to include('- 表紙')
+          expect(markdown).to include('- 目次')
+          expect(markdown).to include('- 第Ⅰ部 基礎知識')
+          expect(markdown).to include('- 第Ⅱ部 実践編')
+          # Should not include level 2 or deeper
+          expect(markdown).not_to include('  - 1章 はじめに')
+          expect(markdown).not_to include('    - 1.1 背景と目的')
+        end
+
+        it 'shows up to level 2 when depth is 2' do
+          extractor = described_class.new(japanese_pdf_path)
+          markdown = extractor.to_markdown(max_depth: 2)
+
+          expect(markdown).to include('- 表紙')
+          expect(markdown).to include('- 第Ⅰ部 基礎知識')
+          expect(markdown).to include('  - 1章 はじめに')
+          expect(markdown).to include('  - 2章 環境構築')
+          # Should not include level 3
+          expect(markdown).not_to include('    - 1.1 背景と目的')
+          expect(markdown).not_to include('    - 2.1 必要なツール')
+        end
+      end
     end
   end
 
   describe '#extract_page_number' do
     let(:extractor) { described_class.new(valid_pdf_path) }
     let(:reader) { double('PDF::Reader') }
-    
+
     before do
       allow(PDF::Reader).to receive(:new).and_return(reader)
       allow(reader).to receive(:objects).and_return(double('objects'))
@@ -120,10 +187,10 @@ RSpec.describe PDFChapterTree do
     context 'with named destination (string format like "p35")' do
       it 'extracts page number from string pattern' do
         item = { A: { D: 'p35' } }
-        
+
         # Access private method for testing
         page_num = extractor.send(:extract_page_number, reader, item)
-        
+
         expect(page_num).to eq(35)
       end
 
@@ -136,7 +203,7 @@ RSpec.describe PDFChapterTree do
           'p' => nil,      # No number
           '' => nil        # Empty string
         }
-        
+
         test_cases.each do |dest_string, expected|
           item = { A: { D: dest_string } }
           page_num = extractor.send(:extract_page_number, reader, item)
@@ -150,12 +217,12 @@ RSpec.describe PDFChapterTree do
         action_ref = double('PDF::Reader::Reference')
         action_obj = { D: 'p42', S: :GoTo }
         item = { A: action_ref }
-        
+
         allow(action_ref).to receive(:is_a?).with(PDF::Reader::Reference).and_return(true)
         allow(reader.objects).to receive(:[]).with(action_ref).and_return(action_obj)
-        
+
         page_num = extractor.send(:extract_page_number, reader, item)
-        
+
         expect(page_num).to eq(42)
       end
     end
