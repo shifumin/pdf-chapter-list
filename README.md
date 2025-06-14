@@ -27,20 +27,32 @@ bundle install
 ## Usage
 
 ```bash
-bundle exec ruby pdf_chapter_tree.rb path/to/your.pdf
+bundle exec ruby pdf_chapter_tree.rb [options] path/to/your.pdf
 
 # Or make it executable and run directly
 chmod +x pdf_chapter_tree.rb
-./pdf_chapter_tree.rb path/to/your.pdf
+./pdf_chapter_tree.rb [options] path/to/your.pdf
 
 # Show help
 bundle exec ruby pdf_chapter_tree.rb -h
 ```
 
-### Example
+### Command Line Options
+
+- `-d, --depth LEVEL` - Display only LEVEL levels of hierarchy (default: all levels)
+- `-h, --help` - Show help message
+
+### Examples
 
 ```bash
+# Show all levels (default)
 bundle exec ruby pdf_chapter_tree.rb document.pdf
+
+# Show only top level chapters
+bundle exec ruby pdf_chapter_tree.rb -d 1 document.pdf
+
+# Show up to 2 levels deep
+bundle exec ruby pdf_chapter_tree.rb --depth 2 document.pdf
 ```
 
 ### Output Format
@@ -112,6 +124,7 @@ bundle exec ruby spec/support/generate_test_pdfs.rb
 - Handles UTF-16BE encoding (common in Japanese PDFs)
 - Properly decodes international characters
 - Removes BOM and other invisible characters
+- Depth limiting feature to control output hierarchy levels
 
 ## Notes
 
