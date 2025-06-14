@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require 'pdf-reader'
+require 'optparse'
 
 class PDFChapterTree
   def initialize(pdf_path)
@@ -32,7 +33,7 @@ class PDFChapterTree
     raise "Unexpected error: #{e.message}"
   end
 
-  def to_markdown
+  def to_markdown(max_depth: nil)
     chapters = extract_chapters
 
     output = ["# #{File.basename(@pdf_path)}", '']
@@ -40,7 +41,7 @@ class PDFChapterTree
     if chapters.is_a?(String)
       output << chapters
     else
-      render_chapters(chapters, output)
+      render_chapters(chapters, output, max_depth: max_depth)
     end
 
     output.join("\n")
@@ -83,7 +84,7 @@ class PDFChapterTree
   end
 
   def decode_pdf_string(str)
-    return nil unless str&.is_a?(String)
+    return nil unless str.is_a?(String)
 
     # Try UTF-16BE first (common in PDFs)
     if str.bytes.first(2) == [254, 255] || str.include?("\x00")
@@ -139,7 +140,7 @@ class PDFChapterTree
       # Handle named destinations (e.g., "p35")
       # For simple page number patterns, extract directly
       return ::Regexp.last_match(1).to_i if dest =~ /^p(\d+)$/
-      
+
       # For complex named destinations, would need to resolve through Names dictionary
       # This is not implemented yet as it requires complex PDF structure parsing
     end
@@ -149,8 +150,11 @@ class PDFChapterTree
     nil
   end
 
-  def render_chapters(chapters, output, _indent = '')
+  def render_chapters(chapters, output, max_depth: nil)
     chapters.each do |chapter|
+      # Skip chapters beyond max_depth if specified
+      next if max_depth && (chapter[:level] + 1) > max_depth
+
       level_indent = '  ' * chapter[:level]
       page_info = chapter[:page] ? " (p.#{chapter[:page]})" : ''
       output << "#{level_indent}- #{chapter[:title]}#{page_info}"
@@ -158,36 +162,65 @@ class PDFChapterTree
   end
 end
 
-def print_usage
-  puts <<~USAGE
-    Usage: bundle exec ruby pdf_chapter_tree.rb <path/to/pdf_file>
+def parse_options
+  options = {}
 
-    This script extracts and displays the chapter structure of a PDF file
-    in a hierarchical Markdown format.
+  parser = OptionParser.new do |opts|
+    opts.banner = 'Usage: bundle exec ruby pdf_chapter_tree.rb [options] <path/to/pdf_file>'
 
-    Example:
-      bundle exec ruby pdf_chapter_tree.rb document.pdf
+    opts.on('-d', '--depth LEVEL', Integer, 'Display only LEVEL levels of hierarchy') do |level|
+      if level <= 0
+        puts 'Error: Depth must be a positive integer'
+        exit 1
+      end
+      options[:depth] = level
+    end
 
-    Requirements:
-      - Ruby 3.4 or higher
-      - pdf-reader gem (install with: bundle install)
-  USAGE
+    opts.on('-h', '--help', 'Show this help message') do
+      puts opts
+      puts
+      puts 'Description:'
+      puts '  This script extracts and displays the chapter structure of a PDF file'
+      puts '  in a hierarchical Markdown format.'
+      puts
+      puts 'Examples:'
+      puts '  bundle exec ruby pdf_chapter_tree.rb document.pdf               # Show all levels'
+      puts '  bundle exec ruby pdf_chapter_tree.rb -d 2 document.pdf          # Show only 2 levels'
+      puts '  bundle exec ruby pdf_chapter_tree.rb --depth 1 document.pdf     # Show only top level'
+      puts
+      puts 'Requirements:'
+      puts '  - Ruby 3.4 or higher'
+      puts '  - pdf-reader gem (install with: bundle install)'
+      exit
+    end
+  end
+
+  parser.parse!
+  options
+rescue OptionParser::InvalidOption => e
+  puts "Error: #{e.message}"
+  puts
+  puts parser.help
+  exit 1
 end
 
 if __FILE__ == $PROGRAM_NAME
-  if ARGV.empty? || ARGV[0] == '-h' || ARGV[0] == '--help'
-    print_usage
-    exit 0
+  options = parse_options
+
+  if ARGV.empty?
+    puts 'Error: No PDF file specified'
+    puts
+    puts 'Usage: bundle exec ruby pdf_chapter_tree.rb [options] <path/to/pdf_file>'
+    puts "Try 'bundle exec ruby pdf_chapter_tree.rb --help' for more information."
+    exit 1
   end
 
   begin
     pdf_path = ARGV[0]
     extractor = PDFChapterTree.new(pdf_path)
-    puts extractor.to_markdown
+    puts extractor.to_markdown(max_depth: options[:depth])
   rescue StandardError => e
     puts "Error: #{e.message}"
-    puts
-    print_usage
     exit 1
   end
 end
