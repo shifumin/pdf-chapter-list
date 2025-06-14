@@ -35,6 +35,9 @@ Metrics/BlockLength:
 RSpec/MultipleExpectations:
   Max: 12
 
+RSpec/MultipleMemoizedHelpers:
+  Max: 7
+
 RSpec/NestedGroups:
   Max: 5
 
