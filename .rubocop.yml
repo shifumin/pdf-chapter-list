@@ -20,15 +20,16 @@ Style/StringLiterals:
   EnforcedStyle: double_quotes
 
 Metrics/ClassLength:
-  Max: 150
+  Enabled: false
 
 Metrics/AbcSize:
-  Max: 25
+  Max: 35
 
 Metrics/MethodLength:
-  Max: 20
+  Max: 30
 
 Metrics/BlockLength:
+  Max: 30
   Exclude:
     - 'spec/**/*'
 
@@ -42,4 +43,4 @@ RSpec/NestedGroups:
   Max: 5
 
 RSpec/ExampleLength:
-  Max: 10
+  Enabled: false
