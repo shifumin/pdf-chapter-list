@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'pdf-reader'
-require 'optparse'
+require "pdf-reader"
+require "optparse"
 
 class PDFChapterTree
   def initialize(pdf_path)
@@ -15,18 +15,18 @@ class PDFChapterTree
 
     # Access the catalog through the trailer
     catalog = reader.objects.trailer[:Root]
-    return 'No outline/chapters found in this PDF.' unless catalog
+    return "No outline/chapters found in this PDF." unless catalog
 
     catalog_obj = reader.objects[catalog]
-    return 'No outline/chapters found in this PDF.' unless catalog_obj && catalog_obj[:Outlines]
+    return "No outline/chapters found in this PDF." unless catalog_obj && catalog_obj[:Outlines]
 
     outline_root = reader.objects[catalog_obj[:Outlines]]
-    return 'No outline/chapters found in this PDF.' unless outline_root && outline_root[:First]
+    return "No outline/chapters found in this PDF." unless outline_root && outline_root[:First]
 
     chapters = []
     parse_outline_item(reader, outline_root[:First], chapters, 0)
 
-    chapters.empty? ? 'No outline/chapters found in this PDF.' : chapters
+    chapters.empty? ? "No outline/chapters found in this PDF." : chapters
   rescue PDF::Reader::MalformedPDFError => e
     raise "Error reading PDF: #{e.message}"
   rescue StandardError => e
@@ -36,7 +36,7 @@ class PDFChapterTree
   def to_markdown(max_depth: nil)
     chapters = extract_chapters
 
-    output = ["# #{File.basename(@pdf_path)}", '']
+    output = ["# #{File.basename(@pdf_path)}", ""]
 
     if chapters.is_a?(String)
       output << chapters
@@ -65,7 +65,7 @@ class PDFChapterTree
 
   def validate_file!
     raise "File not found: #{@pdf_path}" unless File.exist?(@pdf_path)
-    raise "Not a PDF file: #{@pdf_path}" unless File.extname(@pdf_path).downcase == '.pdf'
+    raise "Not a PDF file: #{@pdf_path}" unless File.extname(@pdf_path).downcase == ".pdf"
   end
 
   def parse_outline_item(reader, item_ref, chapters, level)
@@ -103,22 +103,22 @@ class PDFChapterTree
     # Try UTF-16BE first (common in PDFs)
     if str.bytes.first(2) == [254, 255] || str.include?("\x00")
       begin
-        str = str.force_encoding('UTF-16BE').encode('UTF-8')
+        str = str.force_encoding("UTF-16BE").encode("UTF-8")
       rescue StandardError
         # Fall back to forcing UTF-8
-        str = str.force_encoding('UTF-8')
-        str = str.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?') unless str.valid_encoding?
+        str = str.force_encoding("UTF-8")
+        str = str.encode("UTF-8", invalid: :replace, undef: :replace, replace: "?") unless str.valid_encoding?
       end
     else
-      str = str.force_encoding('UTF-8')
-      str = str.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?') unless str.valid_encoding?
+      str = str.force_encoding("UTF-8")
+      str = str.encode("UTF-8", invalid: :replace, undef: :replace, replace: "?") unless str.valid_encoding?
     end
 
     # Remove BOM and other invisible characters
     str = str.delete_prefix("\uFEFF") # Remove BOM
 
     # Replace full-width space with half-width space
-    str = str.tr('　', ' ')
+    str = str.tr("　", " ")
 
     str.strip # Remove leading/trailing whitespace
   end
@@ -169,8 +169,8 @@ class PDFChapterTree
       # Skip chapters beyond max_depth if specified
       next if max_depth && (chapter[:level] + 1) > max_depth
 
-      level_indent = '  ' * chapter[:level]
-      page_info = chapter[:page] ? " (p.#{chapter[:page]})" : ''
+      level_indent = "  " * chapter[:level]
+      page_info = chapter[:page] ? " (p.#{chapter[:page]})" : ""
       output << "#{level_indent}- #{chapter[:title]}#{page_info}"
     end
   end
@@ -202,7 +202,7 @@ class PDFChapterTree
       end
 
       # Build tree prefix based on parent levels
-      tree_prefix = ''
+      tree_prefix = ""
       (0...current_level).each do |parent_level|
         # Check if parent level has more items after current branch
         has_more_at_parent = false
@@ -214,13 +214,13 @@ class PDFChapterTree
             break
           end
         end
-        tree_prefix += has_more_at_parent ? '│   ' : '    '
+        tree_prefix += has_more_at_parent ? "│   " : "    "
       end
 
       # Add branch symbol
-      branch = is_last_at_level ? '└── ' : '├── '
+      branch = is_last_at_level ? "└── " : "├── "
 
-      page_info = chapter[:page] ? " (p.#{chapter[:page]})" : ''
+      page_info = chapter[:page] ? " (p.#{chapter[:page]})" : ""
       output << "#{tree_prefix}#{branch}#{chapter[:title]}#{page_info}"
     end
   end
@@ -230,37 +230,37 @@ def parse_options
   options = {}
 
   parser = OptionParser.new do |opts|
-    opts.banner = 'Usage: bundle exec ruby pdf_chapter_tree.rb [options] <path/to/pdf_file>'
+    opts.banner = "Usage: bundle exec ruby pdf_chapter_tree.rb [options] <path/to/pdf_file>"
 
-    opts.on('-d', '--depth LEVEL', Integer, 'Display only LEVEL levels of hierarchy') do |level|
+    opts.on("-d", "--depth LEVEL", Integer, "Display only LEVEL levels of hierarchy") do |level|
       if level <= 0
-        puts 'Error: Depth must be a positive integer'
+        puts "Error: Depth must be a positive integer"
         exit 1
       end
       options[:depth] = level
     end
 
-    opts.on('-t', '--tree', 'Display output in tree format instead of Markdown list') do
+    opts.on("-t", "--tree", "Display output in tree format instead of Markdown list") do
       options[:tree] = true
     end
 
-    opts.on('-h', '--help', 'Show this help message') do
+    opts.on("-h", "--help", "Show this help message") do
       puts opts
       puts
-      puts 'Description:'
-      puts '  This script extracts and displays the chapter structure of a PDF file'
-      puts '  in a hierarchical format (Markdown list by default, or tree format with -t).'
+      puts "Description:"
+      puts "  This script extracts and displays the chapter structure of a PDF file"
+      puts "  in a hierarchical format (Markdown list by default, or tree format with -t)."
       puts
-      puts 'Examples:'
-      puts '  bundle exec ruby pdf_chapter_tree.rb document.pdf               # Show all levels in Markdown'
-      puts '  bundle exec ruby pdf_chapter_tree.rb -t document.pdf            # Show all levels in tree format'
-      puts '  bundle exec ruby pdf_chapter_tree.rb -d 2 document.pdf          # Show only 2 levels in Markdown'
-      puts '  bundle exec ruby pdf_chapter_tree.rb -t -d 2 document.pdf       # Show only 2 levels in tree format'
-      puts '  bundle exec ruby pdf_chapter_tree.rb --tree document.pdf        # Show all levels in tree format'
+      puts "Examples:"
+      puts "  bundle exec ruby pdf_chapter_tree.rb document.pdf               # Show all levels in Markdown"
+      puts "  bundle exec ruby pdf_chapter_tree.rb -t document.pdf            # Show all levels in tree format"
+      puts "  bundle exec ruby pdf_chapter_tree.rb -d 2 document.pdf          # Show only 2 levels in Markdown"
+      puts "  bundle exec ruby pdf_chapter_tree.rb -t -d 2 document.pdf       # Show only 2 levels in tree format"
+      puts "  bundle exec ruby pdf_chapter_tree.rb --tree document.pdf        # Show all levels in tree format"
       puts
-      puts 'Requirements:'
-      puts '  - Ruby 3.4 or higher'
-      puts '  - pdf-reader gem (install with: bundle install)'
+      puts "Requirements:"
+      puts "  - Ruby 3.4 or higher"
+      puts "  - pdf-reader gem (install with: bundle install)"
       exit
     end
   end
@@ -278,9 +278,9 @@ if __FILE__ == $PROGRAM_NAME
   options = parse_options
 
   if ARGV.empty?
-    puts 'Error: No PDF file specified'
+    puts "Error: No PDF file specified"
     puts
-    puts 'Usage: bundle exec ruby pdf_chapter_tree.rb [options] <path/to/pdf_file>'
+    puts "Usage: bundle exec ruby pdf_chapter_tree.rb [options] <path/to/pdf_file>"
     puts "Try 'bundle exec ruby pdf_chapter_tree.rb --help' for more information."
     exit 1
   end
