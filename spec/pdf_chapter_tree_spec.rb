@@ -176,11 +176,12 @@ RSpec.describe PDFChapterTree do
 
   describe "#extract_page_number" do
     let(:extractor) { described_class.new(valid_pdf_path) }
-    let(:reader) { double("PDF::Reader") }
+    let(:reader) { instance_double(PDF::Reader) }
 
     before do
       allow(PDF::Reader).to receive(:new).and_return(reader)
-      allow(reader).to receive_messages(objects: double("objects"), pages: [])
+      objects = instance_double(PDF::Reader::ObjectHash)
+      allow(reader).to receive_messages(objects: objects, pages: [])
     end
 
     context 'with named destination (string format like "p35")' do
@@ -213,12 +214,14 @@ RSpec.describe PDFChapterTree do
 
     context "with Action containing string destination" do
       it "resolves Action reference and extracts page from string" do
-        action_ref = double("PDF::Reader::Reference")
+        action_ref = instance_double(PDF::Reader::Reference)
         action_obj = { D: "p42", S: :GoTo }
         item = { A: action_ref }
 
         allow(action_ref).to receive(:is_a?).with(PDF::Reader::Reference).and_return(true)
-        allow(reader.objects).to receive(:[]).with(action_ref).and_return(action_obj)
+        objects = instance_double(PDF::Reader::ObjectHash)
+        allow(reader).to receive(:objects).and_return(objects)
+        allow(objects).to receive(:[]).with(action_ref).and_return(action_obj)
 
         page_num = extractor.send(:extract_page_number, reader, item)
 

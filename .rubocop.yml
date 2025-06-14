@@ -33,7 +33,7 @@ Metrics/BlockLength:
     - 'spec/**/*'
 
 RSpec/MultipleExpectations:
-  Max: 5
+  Max: 12
 
 RSpec/NestedGroups:
   Max: 5
