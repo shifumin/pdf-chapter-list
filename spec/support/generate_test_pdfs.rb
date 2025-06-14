@@ -94,43 +94,43 @@ Prawn::Document.generate('spec/fixtures/japanese_with_outline.pdf') do |pdf|
   # Cover page
   pdf.start_new_page
   pdf.text 'Cover', size: 20, style: :bold
-  
+
   # Table of contents
   pdf.start_new_page
   pdf.text 'Table of Contents', size: 20, style: :bold
-  
+
   # Part 1
   pdf.start_new_page
   pdf.text 'Part I - Basic Knowledge', size: 20, style: :bold
-  
+
   # Chapter 1
   pdf.start_new_page
   pdf.text 'Chapter 1 - Introduction', size: 18, style: :bold
-  
+
   # Section 1.1
   pdf.start_new_page
   pdf.text '1.1 Background and Purpose', size: 16
-  
+
   # Section 1.2
   pdf.start_new_page
   pdf.text '1.2 Book Structure', size: 16
-  
+
   # Chapter 2
   pdf.start_new_page
   pdf.text 'Chapter 2 - Environment Setup', size: 18, style: :bold
-  
+
   # Section 2.1
   pdf.start_new_page
   pdf.text '2.1 Required Tools', size: 16
-  
+
   # Part 2
   pdf.start_new_page
   pdf.text 'Part II - Practical Guide', size: 20, style: :bold
-  
+
   # Chapter 3
   pdf.start_new_page
   pdf.text 'Chapter 3 - Basic Usage', size: 18, style: :bold
-  
+
   # Create outline with UTF-16BE encoded titles (simulating real Japanese PDFs)
   pdf.outline.define do
     page(title: '表紙'.encode('UTF-16BE'), destination: 2)
@@ -160,43 +160,43 @@ Prawn::Document.generate('spec/fixtures/named_dest_outline.pdf') do |pdf|
   # Preface
   pdf.start_new_page
   pdf.text 'Preface', size: 20, style: :bold
-  
+
   # Table of Contents
   pdf.start_new_page
   pdf.text 'Table of Contents', size: 20, style: :bold
-  
+
   # Part 1
   pdf.start_new_page
   pdf.text 'Part I - Fundamentals', size: 20, style: :bold
-  
+
   # Chapter 1
   pdf.start_new_page
   pdf.text 'Chapter 1 - Introduction', size: 18, style: :bold
-  
+
   # Section 1.1
   pdf.start_new_page
   pdf.text '1.1 Getting Started', size: 16
-  
+
   # Section 1.2
   pdf.start_new_page
   pdf.text '1.2 Basic Concepts', size: 16
-  
+
   # Chapter 2
   pdf.start_new_page
   pdf.text 'Chapter 2 - Advanced Topics', size: 18, style: :bold
-  
+
   # Section 2.1
   pdf.start_new_page
   pdf.text '2.1 Deep Dive', size: 16
-  
+
   # Part 2
   pdf.start_new_page
   pdf.text 'Part II - Practice', size: 20, style: :bold
-  
+
   # Chapter 3
   pdf.start_new_page
   pdf.text 'Chapter 3 - Real World Examples', size: 18, style: :bold
-  
+
   # Create outline
   # Since Prawn doesn't support creating PDFs with string destinations directly,
   # we'll create a normal outline and our test will mock the string destination behavior
