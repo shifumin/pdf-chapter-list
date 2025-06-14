@@ -30,6 +30,12 @@ bundle exec ruby pdf_chapter_tree.rb -h
 
 # Show only 2 levels of hierarchy
 bundle exec ruby pdf_chapter_tree.rb -d 2 path/to/file.pdf
+
+# Show in tree format
+bundle exec ruby pdf_chapter_tree.rb -t path/to/file.pdf
+
+# Combine options: tree format with depth limit
+bundle exec ruby pdf_chapter_tree.rb -t -d 2 path/to/file.pdf
 ```
 
 ### Run tests
@@ -81,7 +87,11 @@ bundle exec rubocop -A
   - Resolves Action objects containing destinations
 - `to_markdown` - Converts extracted chapters to Markdown format
   - Accepts `max_depth` parameter to limit hierarchy levels
-- `render_chapters` - Renders chapters with optional depth limiting
+- `to_tree` - Converts extracted chapters to tree format
+  - Accepts `max_depth` parameter to limit hierarchy levels
+  - Uses box-drawing characters (├──, └──, │) for tree structure
+- `render_chapters` - Renders chapters in Markdown list format with optional depth limiting
+- `render_tree` - Renders chapters in tree format with proper branch visualization
 - `parse_options` - Parses command-line options using optparse
 
 ### Dependencies
@@ -112,6 +122,9 @@ bundle exec rubocop -A
   - Default: all levels (no limit)
   - Level counting starts from 1 (root level)
   - Indentation is preserved even with depth limits
+- `-t, --tree` - Display output in tree format instead of Markdown list
+  - Uses box-drawing characters for visual hierarchy
+  - Compatible with `-d` option for depth limiting
 - `-h, --help` - Show help message with usage examples
 
 ## Common Tasks

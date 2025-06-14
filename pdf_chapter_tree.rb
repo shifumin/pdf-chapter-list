@@ -47,6 +47,20 @@ class PDFChapterTree
     output.join("\n")
   end
 
+  def to_tree(max_depth: nil)
+    chapters = extract_chapters
+
+    output = [File.basename(@pdf_path)]
+
+    if chapters.is_a?(String)
+      output << chapters
+    else
+      render_tree(chapters, output, max_depth: max_depth)
+    end
+
+    output.join("\n")
+  end
+
   private
 
   def validate_file!
@@ -160,6 +174,56 @@ class PDFChapterTree
       output << "#{level_indent}- #{chapter[:title]}#{page_info}"
     end
   end
+
+  def render_tree(chapters, output, max_depth: nil)
+    # Filter chapters by max_depth first
+    visible_chapters = if max_depth
+                         chapters.select { |ch| (ch[:level] + 1) <= max_depth }
+                       else
+                         chapters
+                       end
+
+    visible_chapters.each_with_index do |chapter, index|
+      current_level = chapter[:level]
+
+      # Find if there are more items at the same level under the same parent
+      is_last_at_level = true
+      (index + 1...visible_chapters.length).each do |j|
+        next_chapter = visible_chapters[j]
+        if next_chapter[:level] < current_level
+          # We've gone up to a parent level, so we're done
+          break
+        elsif next_chapter[:level] == current_level
+          # Found a sibling at the same level
+          is_last_at_level = false
+          break
+        end
+        # If next_chapter[:level] > current_level, keep looking
+      end
+
+      # Build tree prefix based on parent levels
+      tree_prefix = ''
+      (0...current_level).each do |parent_level|
+        # Check if parent level has more items after current branch
+        has_more_at_parent = false
+        (index + 1...visible_chapters.length).each do |j|
+          if visible_chapters[j][:level] == parent_level
+            has_more_at_parent = true
+            break
+          elsif visible_chapters[j][:level] < parent_level
+            break
+          end
+        end
+        tree_prefix += has_more_at_parent ? '│   ' : '    '
+      end
+
+      # Add branch symbol
+      branch = is_last_at_level ? '└── ' : '├── '
+
+      page_info = chapter[:page] ? " (p.#{chapter[:page]})" : ''
+      output << "#{tree_prefix}#{branch}#{chapter[:title]}#{page_info}"
+    end
+  end
 end
 
 def parse_options
@@ -176,17 +240,23 @@ def parse_options
       options[:depth] = level
     end
 
+    opts.on('-t', '--tree', 'Display output in tree format instead of Markdown list') do
+      options[:tree] = true
+    end
+
     opts.on('-h', '--help', 'Show this help message') do
       puts opts
       puts
       puts 'Description:'
       puts '  This script extracts and displays the chapter structure of a PDF file'
-      puts '  in a hierarchical Markdown format.'
+      puts '  in a hierarchical format (Markdown list by default, or tree format with -t).'
       puts
       puts 'Examples:'
-      puts '  bundle exec ruby pdf_chapter_tree.rb document.pdf               # Show all levels'
-      puts '  bundle exec ruby pdf_chapter_tree.rb -d 2 document.pdf          # Show only 2 levels'
-      puts '  bundle exec ruby pdf_chapter_tree.rb --depth 1 document.pdf     # Show only top level'
+      puts '  bundle exec ruby pdf_chapter_tree.rb document.pdf               # Show all levels in Markdown'
+      puts '  bundle exec ruby pdf_chapter_tree.rb -t document.pdf            # Show all levels in tree format'
+      puts '  bundle exec ruby pdf_chapter_tree.rb -d 2 document.pdf          # Show only 2 levels in Markdown'
+      puts '  bundle exec ruby pdf_chapter_tree.rb -t -d 2 document.pdf       # Show only 2 levels in tree format'
+      puts '  bundle exec ruby pdf_chapter_tree.rb --tree document.pdf        # Show all levels in tree format'
       puts
       puts 'Requirements:'
       puts '  - Ruby 3.4 or higher'
@@ -218,7 +288,12 @@ if __FILE__ == $PROGRAM_NAME
   begin
     pdf_path = ARGV[0]
     extractor = PDFChapterTree.new(pdf_path)
-    puts extractor.to_markdown(max_depth: options[:depth])
+
+    if options[:tree]
+      puts extractor.to_tree(max_depth: options[:depth])
+    else
+      puts extractor.to_markdown(max_depth: options[:depth])
+    end
   rescue StandardError => e
     puts "Error: #{e.message}"
     exit 1

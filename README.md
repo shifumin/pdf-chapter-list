@@ -4,7 +4,7 @@ Ruby script to visualize PDF chapter structure
 
 ## Overview
 
-This Ruby script extracts and displays the chapter structure (outline/bookmarks) from PDF files in a hierarchical Markdown format, including page numbers. It supports both English and Japanese PDFs with proper encoding handling.
+This Ruby script extracts and displays the chapter structure (outline/bookmarks) from PDF files in a hierarchical format, including page numbers. It supports two output formats: Markdown list (default) and tree structure. The script handles both English and Japanese PDFs with proper encoding support.
 
 ## Requirements
 
@@ -40,24 +40,30 @@ bundle exec ruby pdf_chapter_tree.rb -h
 ### Command Line Options
 
 - `-d, --depth LEVEL` - Display only LEVEL levels of hierarchy (default: all levels)
+- `-t, --tree` - Display output in tree format instead of Markdown list
 - `-h, --help` - Show help message
 
 ### Examples
 
 ```bash
-# Show all levels (default)
+# Show all levels in Markdown format (default)
 bundle exec ruby pdf_chapter_tree.rb document.pdf
+
+# Show all levels in tree format
+bundle exec ruby pdf_chapter_tree.rb -t document.pdf
 
 # Show only top level chapters
 bundle exec ruby pdf_chapter_tree.rb -d 1 document.pdf
 
-# Show up to 2 levels deep
-bundle exec ruby pdf_chapter_tree.rb --depth 2 document.pdf
+# Show up to 2 levels deep in tree format
+bundle exec ruby pdf_chapter_tree.rb -t --depth 2 document.pdf
 ```
 
-### Output Format
+### Output Formats
 
-The script outputs the PDF's chapter structure in Markdown format:
+#### Markdown Format (default)
+
+The script outputs the PDF's chapter structure as a Markdown list:
 
 ```markdown
 # document.pdf
@@ -71,9 +77,24 @@ The script outputs the PDF's chapter structure in Markdown format:
 - 3. Advanced Topics (p.20)
 ```
 
+#### Tree Format
+
+With the `-t` or `--tree` option, the output uses tree-style formatting:
+
+```
+document.pdf
+├── 1. Introduction (p.1)
+│   ├── 1.1 Background (p.3)
+│   └── 1.2 Overview (p.7)
+├── 2. Getting Started (p.12)
+│   ├── 2.1 Installation (p.12)
+│   └── 2.2 Configuration (p.15)
+└── 3. Advanced Topics (p.20)
+```
 
 For Japanese PDFs:
 
+Markdown format:
 ```markdown
 # 技術書.pdf
 
@@ -85,6 +106,19 @@ For Japanese PDFs:
     - 1.2 本書の構成 (p.10)
   - 2章 環境構築 (p.15)
 - 第Ⅱ部 実践編 (p.25)
+```
+
+Tree format:
+```
+技術書.pdf
+├── 表紙 (p.1)
+├── 目次 (p.2)
+├── 第Ⅰ部 基礎知識 (p.5)
+│   ├── 1章 はじめに (p.7)
+│   │   ├── 1.1 背景と目的 (p.8)
+│   │   └── 1.2 本書の構成 (p.10)
+│   └── 2章 環境構築 (p.15)
+└── 第Ⅱ部 実践編 (p.25)
 ```
 
 ## Development
@@ -116,7 +150,9 @@ bundle exec ruby spec/support/generate_test_pdfs.rb
 ## Features
 
 - Extracts PDF outline/bookmark structure
-- Displays hierarchical chapter structure in Markdown format
+- Two output formats available:
+  - Markdown list format (default)
+  - Tree structure format (with `-t` option)
 - Shows page numbers for each chapter when available
 - Supports multiple PDF destination formats:
   - Array-based destinations (standard format)
@@ -125,6 +161,7 @@ bundle exec ruby spec/support/generate_test_pdfs.rb
 - Properly decodes international characters
 - Removes BOM and other invisible characters
 - Depth limiting feature to control output hierarchy levels
+- Works with both English and Japanese PDFs
 
 ## Notes
 

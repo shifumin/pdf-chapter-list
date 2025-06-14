@@ -227,4 +227,104 @@ RSpec.describe PDFChapterTree do
       end
     end
   end
+
+  describe '#to_tree' do
+    context 'with PDF containing chapters' do
+      it 'generates tree format output' do
+        extractor = described_class.new(valid_pdf_path)
+        tree = extractor.to_tree
+
+        expect(tree).to include('sample_with_outline.pdf')
+        expect(tree).to include('├── 1. Introduction')
+        expect(tree).to include('│   ├── 1.1 Background')
+        expect(tree).to include('│   └── 1.2 Overview')
+        expect(tree).to include('├── 2. Getting Started')
+        expect(tree).to include('└── 3. Advanced Topics')
+      end
+
+      context 'with depth limit' do
+        it 'shows only specified levels when depth is 1' do
+          extractor = described_class.new(valid_pdf_path)
+          tree = extractor.to_tree(max_depth: 1)
+
+          expect(tree).to include('sample_with_outline.pdf')
+          expect(tree).to include('├── 1. Introduction')
+          expect(tree).to include('├── 2. Getting Started')
+          expect(tree).to include('└── 3. Advanced Topics')
+          # Should not include level 2 items
+          expect(tree).not_to include('│   ├── 1.1 Background')
+          expect(tree).not_to include('│   └── 1.2 Overview')
+        end
+
+        it 'shows two levels when depth is 2' do
+          extractor = described_class.new(valid_pdf_path)
+          tree = extractor.to_tree(max_depth: 2)
+
+          expect(tree).to include('sample_with_outline.pdf')
+          expect(tree).to include('├── 1. Introduction')
+          expect(tree).to include('│   ├── 1.1 Background')
+          expect(tree).to include('│   └── 1.2 Overview')
+          expect(tree).to include('├── 2. Getting Started')
+          expect(tree).to include('└── 3. Advanced Topics')
+        end
+      end
+    end
+
+    context 'with PDF without outline' do
+      it 'returns appropriate message' do
+        extractor = described_class.new(pdf_without_outline_path)
+        tree = extractor.to_tree
+
+        expect(tree).to include('sample_without_outline.pdf')
+        expect(tree).to include('No outline/chapters found in this PDF.')
+      end
+    end
+
+    context 'with Japanese PDF containing UTF-16BE encoded outline' do
+      it 'correctly displays Japanese titles in tree format' do
+        extractor = described_class.new(japanese_pdf_path)
+        tree = extractor.to_tree
+
+        expect(tree).to include('japanese_with_outline.pdf')
+        expect(tree).to include('├── 表紙')
+        expect(tree).to include('├── 目次')
+        expect(tree).to include('├── 第Ⅰ部 基礎知識')
+        expect(tree).to include('│   ├── 1章 はじめに')
+        expect(tree).to include('│   │   ├── 1.1 背景と目的')
+        expect(tree).to include('│   │   └── 1.2 本書の構成')
+        expect(tree).to include('│   └── 2章 環境構築')
+        expect(tree).to include('│       └── 2.1 必要なツール')
+        expect(tree).to include('└── 第Ⅱ部 実践編')
+        expect(tree).to include('    └── 3章 基本的な使い方')
+      end
+
+      context 'with depth limit' do
+        it 'shows only top level when depth is 1' do
+          extractor = described_class.new(japanese_pdf_path)
+          tree = extractor.to_tree(max_depth: 1)
+
+          expect(tree).to include('├── 表紙')
+          expect(tree).to include('├── 目次')
+          expect(tree).to include('├── 第Ⅰ部 基礎知識')
+          expect(tree).to include('└── 第Ⅱ部 実践編')
+          # Should not include level 2 or deeper
+          expect(tree).not_to include('│   ├── 1章 はじめに')
+          expect(tree).not_to include('│   │   ├── 1.1 背景と目的')
+        end
+
+        it 'shows up to level 2 when depth is 2' do
+          extractor = described_class.new(japanese_pdf_path)
+          tree = extractor.to_tree(max_depth: 2)
+
+          expect(tree).to include('├── 表紙')
+          expect(tree).to include('├── 第Ⅰ部 基礎知識')
+          expect(tree).to include('│   ├── 1章 はじめに')
+          expect(tree).to include('│   └── 2章 環境構築')
+          # Should not include level 3
+          expect(tree).not_to include('│   │   ├── 1.1 背景と目的')
+          expect(tree).not_to include('│   │   └── 2.1 必要なツール')
+        end
+      end
+    end
+  end
 end
