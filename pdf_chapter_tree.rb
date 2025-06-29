@@ -215,7 +215,7 @@ class PDFChapterTree
   def last_at_level?(chapters, index)
     current_level = chapters[index][:level]
 
-    (index + 1...chapters.length).each do |j|
+    ((index + 1)...chapters.length).each do |j|
       next_level = chapters[j][:level]
       return false if next_level == current_level
       break if next_level < current_level
@@ -236,7 +236,7 @@ class PDFChapterTree
   end
 
   def more_at_parent_level?(chapters, index, parent_level)
-    (index + 1...chapters.length).each do |j|
+    ((index + 1)...chapters.length).each do |j|
       level = chapters[j][:level]
       return true if level == parent_level
       return false if level < parent_level
