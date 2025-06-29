@@ -41,6 +41,7 @@ bundle exec ruby pdf_chapter_tree.rb -h
 
 - `-d, --depth LEVEL` - Display only LEVEL levels of hierarchy (default: all levels)
 - `-t, --tree` - Display output in tree format instead of Markdown list
+- `-i, --indent SPACES` - Set indent spacing (default: 2)
 - `-h, --help` - Show help message
 
 ### Examples
@@ -57,6 +58,12 @@ bundle exec ruby pdf_chapter_tree.rb -d 1 document.pdf
 
 # Show up to 2 levels deep in tree format
 bundle exec ruby pdf_chapter_tree.rb -t --depth 2 document.pdf
+
+# Use 4-space indent for Obsidian compatibility
+bundle exec ruby pdf_chapter_tree.rb -i 4 document.pdf
+
+# Combine 4-space indent with depth limit
+bundle exec ruby pdf_chapter_tree.rb -i 4 -d 2 document.pdf
 ```
 
 ### Output Formats
@@ -161,7 +168,24 @@ bundle exec ruby spec/support/generate_test_pdfs.rb
 - Properly decodes international characters
 - Removes BOM and other invisible characters
 - Depth limiting feature to control output hierarchy levels
+- Customizable indent spacing for compatibility with different Markdown editors
 - Works with both English and Japanese PDFs
+
+### Indent Option for Obsidian
+
+The `-i` or `--indent` option allows you to customize the indentation spacing. This is particularly useful for Obsidian users:
+
+- **Default (2 spaces)**: Standard Markdown indentation
+- **4 spaces**: Required by Obsidian for proper nested list rendering
+- **Custom**: Any number of spaces based on your preference
+
+Example for Obsidian:
+```bash
+# Extract chapters with 4-space indent for Obsidian
+bundle exec ruby pdf_chapter_tree.rb -i 4 document.pdf
+```
+
+This ensures that nested lists are properly rendered in Obsidian's editor and preview modes.
 
 ## Notes
 

@@ -171,6 +171,37 @@ RSpec.describe PDFChapterTree do
           expect(markdown).not_to include("    - 2.1 必要なツール")
         end
       end
+
+      context "with custom indent" do
+        it "uses 4-space indent when specified" do
+          extractor = described_class.new(valid_pdf_path)
+          markdown = extractor.to_markdown(indent: 4)
+
+          expect(markdown).to include("- 1. Introduction")
+          expect(markdown).to include("    - 1.1 Background")
+          expect(markdown).to include("    - 1.2 Overview")
+        end
+
+        it "uses 1-space indent when specified" do
+          extractor = described_class.new(valid_pdf_path)
+          markdown = extractor.to_markdown(indent: 1)
+
+          expect(markdown).to include("- 1. Introduction")
+          expect(markdown).to include(" - 1.1 Background")
+          expect(markdown).to include(" - 1.2 Overview")
+        end
+
+        it "combines indent with depth limit" do
+          extractor = described_class.new(japanese_pdf_path)
+          markdown = extractor.to_markdown(indent: 4, max_depth: 2)
+
+          expect(markdown).to include("- 第Ⅰ部 基礎知識")
+          expect(markdown).to include("    - 1章 はじめに")
+          expect(markdown).to include("    - 2章 環境構築")
+          # Should not include level 3 with 8-space indent
+          expect(markdown).not_to include("        - 1.1 背景と目的")
+        end
+      end
     end
   end
 
@@ -325,6 +356,26 @@ RSpec.describe PDFChapterTree do
           # Should not include level 3
           expect(tree).not_to include("│   │   ├── 1.1 背景と目的")
           expect(tree).not_to include("│   │   └── 2.1 必要なツール")
+        end
+      end
+
+      context "with custom indent for tree format" do
+        it "uses 4-space indent when specified" do
+          extractor = described_class.new(valid_pdf_path)
+          tree = extractor.to_tree(indent: 4)
+
+          expect(tree).to include("├── 1. Introduction")
+          expect(tree).to include("│     ├── 1.1 Background")
+          expect(tree).to include("│     └── 1.2 Overview")
+        end
+
+        it "uses 1-space indent when specified" do
+          extractor = described_class.new(valid_pdf_path)
+          tree = extractor.to_tree(indent: 1)
+
+          expect(tree).to include("├── 1. Introduction")
+          expect(tree).to include("│  ├── 1.1 Background")
+          expect(tree).to include("│  └── 1.2 Overview")
         end
       end
     end

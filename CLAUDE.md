@@ -34,8 +34,14 @@ bundle exec ruby pdf_chapter_tree.rb -d 2 path/to/file.pdf
 # Show in tree format
 bundle exec ruby pdf_chapter_tree.rb -t path/to/file.pdf
 
+# Use 4-space indent (for Obsidian compatibility)
+bundle exec ruby pdf_chapter_tree.rb -i 4 path/to/file.pdf
+
 # Combine options: tree format with depth limit
 bundle exec ruby pdf_chapter_tree.rb -t -d 2 path/to/file.pdf
+
+# Combine indent with depth limit
+bundle exec ruby pdf_chapter_tree.rb -i 4 -d 2 path/to/file.pdf
 ```
 
 ### Run tests
@@ -87,10 +93,12 @@ bundle exec rubocop -A
   - Resolves Action objects containing destinations
 - `to_markdown` - Converts extracted chapters to Markdown format
   - Accepts `max_depth` parameter to limit hierarchy levels
+  - Accepts `indent` parameter to customize indentation (default: 2 spaces)
 - `to_tree` - Converts extracted chapters to tree format
   - Accepts `max_depth` parameter to limit hierarchy levels
   - Uses box-drawing characters (├──, └──, │) for tree structure
 - `render_chapters` - Renders chapters in Markdown list format with optional depth limiting
+  - Uses configurable indent spacing for nested lists
 - `render_tree` - Renders chapters in tree format with proper branch visualization
 - `parse_options` - Parses command-line options using optparse
 
@@ -125,6 +133,10 @@ bundle exec rubocop -A
 - `-t, --tree` - Display output in tree format instead of Markdown list
   - Uses box-drawing characters for visual hierarchy
   - Compatible with `-d` option for depth limiting
+- `-i, --indent SPACES` - Set indent spacing for Markdown format
+  - Default: 2 spaces (standard Markdown)
+  - Use 4 spaces for Obsidian compatibility
+  - Does not affect tree format output
 - `-h, --help` - Show help message with usage examples
 
 ## Common Tasks

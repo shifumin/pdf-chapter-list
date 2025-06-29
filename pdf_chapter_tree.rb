@@ -39,7 +39,7 @@ class PDFChapterTree
     outline_root
   end
 
-  def to_markdown(max_depth: nil)
+  def to_markdown(max_depth: nil, indent: 2)
     chapters = extract_chapters
 
     output = ["# #{File.basename(@pdf_path)}", ""]
@@ -47,13 +47,13 @@ class PDFChapterTree
     if chapters.is_a?(String)
       output << chapters
     else
-      render_chapters(chapters, output, max_depth: max_depth)
+      render_chapters(chapters, output, max_depth: max_depth, indent: indent)
     end
 
     output.join("\n")
   end
 
-  def to_tree(max_depth: nil)
+  def to_tree(max_depth: nil, indent: 2)
     chapters = extract_chapters
 
     output = [File.basename(@pdf_path)]
@@ -61,7 +61,7 @@ class PDFChapterTree
     if chapters.is_a?(String)
       output << chapters
     else
-      render_tree(chapters, output, max_depth: max_depth)
+      render_tree(chapters, output, max_depth: max_depth, indent: indent)
     end
 
     output.join("\n")
@@ -185,23 +185,23 @@ class PDFChapterTree
     nil
   end
 
-  def render_chapters(chapters, output, max_depth: nil)
+  def render_chapters(chapters, output, max_depth: nil, indent: 2)
     chapters.each do |chapter|
       # Skip chapters beyond max_depth if specified
       next if max_depth && (chapter[:level] + 1) > max_depth
 
-      level_indent = "  " * chapter[:level]
+      level_indent = " " * (indent * chapter[:level])
       page_info = chapter[:page] ? " (p.#{chapter[:page]})" : ""
       output << "#{level_indent}- #{chapter[:title]}#{page_info}"
     end
   end
 
-  def render_tree(chapters, output, max_depth: nil)
+  def render_tree(chapters, output, max_depth: nil, indent: 2)
     visible_chapters = filter_chapters_by_depth(chapters, max_depth)
 
     visible_chapters.each_with_index do |chapter, index|
       is_last_at_level = last_at_level?(visible_chapters, index)
-      tree_prefix = build_tree_prefix(visible_chapters, index, chapter[:level])
+      tree_prefix = build_tree_prefix(visible_chapters, index, chapter[:level], indent)
       render_tree_line(output, chapter, tree_prefix, is_last_at_level)
     end
   end
@@ -224,12 +224,12 @@ class PDFChapterTree
     true
   end
 
-  def build_tree_prefix(chapters, index, current_level)
+  def build_tree_prefix(chapters, index, current_level, indent = 2)
     prefix = ""
 
     (0...current_level).each do |parent_level|
       has_more = more_at_parent_level?(chapters, index, parent_level)
-      prefix += has_more ? "│   " : "    "
+      prefix += has_more ? "│#{' ' * (indent + 1)}" : " " * (indent + 2)
     end
 
     prefix
@@ -255,7 +255,18 @@ end
 def parse_options
   options = {}
 
-  parser = OptionParser.new do |opts|
+  parser = create_option_parser(options)
+  parser.parse!
+  options
+rescue OptionParser::InvalidOption => e
+  puts "Error: #{e.message}"
+  puts
+  puts parser.help
+  exit 1
+end
+
+def create_option_parser(options)
+  OptionParser.new do |opts|
     opts.banner = "Usage: bundle exec ruby pdf_chapter_tree.rb [options] <path/to/pdf_file>"
 
     opts.on("-d", "--depth LEVEL", Integer, "Display only LEVEL levels of hierarchy") do |level|
@@ -270,19 +281,19 @@ def parse_options
       options[:tree] = true
     end
 
+    opts.on("-i", "--indent SPACES", Integer, "Set indent spacing (default: 2)") do |spaces|
+      if spaces <= 0
+        puts "Error: Indent must be a positive integer"
+        exit 1
+      end
+      options[:indent] = spaces
+    end
+
     opts.on("-h", "--help", "Show this help message") do
       show_help(opts)
       exit
     end
   end
-
-  parser.parse!
-  options
-rescue OptionParser::InvalidOption => e
-  puts "Error: #{e.message}"
-  puts
-  puts parser.help
-  exit 1
 end
 
 def show_help(opts)
@@ -297,6 +308,8 @@ def show_help(opts)
   puts "  bundle exec ruby pdf_chapter_tree.rb -t document.pdf            # Show all levels in tree format"
   puts "  bundle exec ruby pdf_chapter_tree.rb -d 2 document.pdf          # Show only 2 levels in Markdown"
   puts "  bundle exec ruby pdf_chapter_tree.rb -t -d 2 document.pdf       # Show only 2 levels in tree format"
+  puts "  bundle exec ruby pdf_chapter_tree.rb -i 4 document.pdf          # Use 4-space indent (for Obsidian)"
+  puts "  bundle exec ruby pdf_chapter_tree.rb -i 4 -d 2 document.pdf     # Combine 4-space indent with depth limit"
   puts "  bundle exec ruby pdf_chapter_tree.rb --tree document.pdf        # Show all levels in tree format"
   puts
   puts "Requirements:"
@@ -320,9 +333,9 @@ if __FILE__ == $PROGRAM_NAME
     extractor = PDFChapterTree.new(pdf_path)
 
     if options[:tree]
-      puts extractor.to_tree(max_depth: options[:depth])
+      puts extractor.to_tree(max_depth: options[:depth], indent: options[:indent] || 2)
     else
-      puts extractor.to_markdown(max_depth: options[:depth])
+      puts extractor.to_markdown(max_depth: options[:depth], indent: options[:indent] || 2)
     end
   rescue StandardError => e
     puts "Error: #{e.message}"
