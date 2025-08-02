@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a Ruby command-line tool that extracts and visualizes PDF chapter structure in Markdown format. The project consists of a single Ruby script that reads PDF files and outputs their outline/bookmark structure.
 
 ### Ruby Version
-- Ruby 3.4.4 (specified in `.ruby-version`)
+- Ruby 3.4.5 (specified in `.ruby-version`)
 - Managed via rbenv, rvm, asdf, or other Ruby version managers
 
 ## Development Commands
