@@ -4,7 +4,7 @@
 require "pdf-reader"
 require "optparse"
 
-class PDFChapterTree
+class PDFChapterList
   def initialize(pdf_path)
     @pdf_path = pdf_path
     validate_file!
@@ -267,7 +267,7 @@ end
 
 def create_option_parser(options)
   OptionParser.new do |opts|
-    opts.banner = "Usage: bundle exec ruby pdf_chapter_tree.rb [options] <path/to/pdf_file>"
+    opts.banner = "Usage: bundle exec ruby pdf_chapter_list.rb [options] <path/to/pdf_file>"
 
     opts.on("-d", "--depth LEVEL", Integer, "Display only LEVEL levels of hierarchy") do |level|
       if level <= 0
@@ -304,13 +304,13 @@ def show_help(opts)
   puts "  in a hierarchical format (Markdown list by default, or tree format with -t)."
   puts
   puts "Examples:"
-  puts "  bundle exec ruby pdf_chapter_tree.rb document.pdf               # Show all levels in Markdown"
-  puts "  bundle exec ruby pdf_chapter_tree.rb -t document.pdf            # Show all levels in tree format"
-  puts "  bundle exec ruby pdf_chapter_tree.rb -d 2 document.pdf          # Show only 2 levels in Markdown"
-  puts "  bundle exec ruby pdf_chapter_tree.rb -t -d 2 document.pdf       # Show only 2 levels in tree format"
-  puts "  bundle exec ruby pdf_chapter_tree.rb -i 4 document.pdf          # Use 4-space indent (for Obsidian)"
-  puts "  bundle exec ruby pdf_chapter_tree.rb -i 4 -d 2 document.pdf     # Combine 4-space indent with depth limit"
-  puts "  bundle exec ruby pdf_chapter_tree.rb --tree document.pdf        # Show all levels in tree format"
+  puts "  bundle exec ruby pdf_chapter_list.rb document.pdf               # Show all levels in Markdown"
+  puts "  bundle exec ruby pdf_chapter_list.rb -t document.pdf            # Show all levels in tree format"
+  puts "  bundle exec ruby pdf_chapter_list.rb -d 2 document.pdf          # Show only 2 levels in Markdown"
+  puts "  bundle exec ruby pdf_chapter_list.rb -t -d 2 document.pdf       # Show only 2 levels in tree format"
+  puts "  bundle exec ruby pdf_chapter_list.rb -i 4 document.pdf          # Use 4-space indent (for Obsidian)"
+  puts "  bundle exec ruby pdf_chapter_list.rb -i 4 -d 2 document.pdf     # Combine 4-space indent with depth limit"
+  puts "  bundle exec ruby pdf_chapter_list.rb --tree document.pdf        # Show all levels in tree format"
   puts
   puts "Requirements:"
   puts "  - Ruby 3.4 or higher"
@@ -323,14 +323,14 @@ if __FILE__ == $PROGRAM_NAME
   if ARGV.empty?
     puts "Error: No PDF file specified"
     puts
-    puts "Usage: bundle exec ruby pdf_chapter_tree.rb [options] <path/to/pdf_file>"
-    puts "Try 'bundle exec ruby pdf_chapter_tree.rb --help' for more information."
+    puts "Usage: bundle exec ruby pdf_chapter_list.rb [options] <path/to/pdf_file>"
+    puts "Try 'bundle exec ruby pdf_chapter_list.rb --help' for more information."
     exit 1
   end
 
   begin
     pdf_path = ARGV[0]
-    extractor = PDFChapterTree.new(pdf_path)
+    extractor = PDFChapterList.new(pdf_path)
 
     if options[:tree]
       puts extractor.to_tree(max_depth: options[:depth], indent: options[:indent] || 2)

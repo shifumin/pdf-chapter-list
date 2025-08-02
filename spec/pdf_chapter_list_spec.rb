@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe PDFChapterTree do
+RSpec.describe PDFChapterList do
   let(:valid_pdf_path) { "spec/fixtures/sample_with_outline.pdf" }
   let(:pdf_without_outline_path) { "spec/fixtures/sample_without_outline.pdf" }
   let(:japanese_pdf_path) { "spec/fixtures/japanese_with_outline.pdf" }

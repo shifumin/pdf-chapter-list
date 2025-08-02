@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "rspec"
-require_relative "../pdf_chapter_tree"
+require_relative "../pdf_chapter_list"
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

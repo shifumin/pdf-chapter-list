@@ -19,38 +19,38 @@ bundle install
 
 ### Run the script
 ```bash
-bundle exec ruby pdf_chapter_tree.rb [options] path/to/file.pdf
+bundle exec ruby pdf_chapter_list.rb [options] path/to/file.pdf
 
 # Or make it executable and run directly
-chmod +x pdf_chapter_tree.rb
-./pdf_chapter_tree.rb [options] path/to/file.pdf
+chmod +x pdf_chapter_list.rb
+./pdf_chapter_list.rb [options] path/to/file.pdf
 
 # Show help
-bundle exec ruby pdf_chapter_tree.rb -h
+bundle exec ruby pdf_chapter_list.rb -h
 
 # Show only 2 levels of hierarchy
-bundle exec ruby pdf_chapter_tree.rb -d 2 path/to/file.pdf
+bundle exec ruby pdf_chapter_list.rb -d 2 path/to/file.pdf
 
 # Show in tree format
-bundle exec ruby pdf_chapter_tree.rb -t path/to/file.pdf
+bundle exec ruby pdf_chapter_list.rb -t path/to/file.pdf
 
 # Use 4-space indent (for Obsidian compatibility)
-bundle exec ruby pdf_chapter_tree.rb -i 4 path/to/file.pdf
+bundle exec ruby pdf_chapter_list.rb -i 4 path/to/file.pdf
 
 # Combine options: tree format with depth limit
-bundle exec ruby pdf_chapter_tree.rb -t -d 2 path/to/file.pdf
+bundle exec ruby pdf_chapter_list.rb -t -d 2 path/to/file.pdf
 
 # Combine indent with depth limit
-bundle exec ruby pdf_chapter_tree.rb -i 4 -d 2 path/to/file.pdf
+bundle exec ruby pdf_chapter_list.rb -i 4 -d 2 path/to/file.pdf
 ```
 
 ### Run tests
 ```bash
 bundle exec rspec
 # Run specific test file
-bundle exec rspec spec/pdf_chapter_tree_spec.rb
+bundle exec rspec spec/pdf_chapter_list_spec.rb
 # Run specific test line
-bundle exec rspec spec/pdf_chapter_tree_spec.rb:42
+bundle exec rspec spec/pdf_chapter_list_spec.rb:42
 ```
 
 ### Linting
@@ -68,7 +68,7 @@ bundle exec rubocop -A
 ## Architecture
 
 ### Core Implementation
-- `pdf_chapter_tree.rb` - Main script containing the `PDFChapterTree` class
+- `pdf_chapter_list.rb` - Main script containing the `PDFChapterList` class
   - Uses `pdf-reader` gem to extract PDF outline information via objects API
   - Converts outline to hierarchical Markdown format
   - Includes error handling for missing files, non-PDF files, and malformed PDFs

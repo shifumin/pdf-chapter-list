@@ -27,14 +27,14 @@ bundle install
 ## Usage
 
 ```bash
-bundle exec ruby pdf_chapter_tree.rb [options] path/to/your.pdf
+bundle exec ruby pdf_chapter_list.rb [options] path/to/your.pdf
 
 # Or make it executable and run directly
-chmod +x pdf_chapter_tree.rb
-./pdf_chapter_tree.rb [options] path/to/your.pdf
+chmod +x pdf_chapter_list.rb
+./pdf_chapter_list.rb [options] path/to/your.pdf
 
 # Show help
-bundle exec ruby pdf_chapter_tree.rb -h
+bundle exec ruby pdf_chapter_list.rb -h
 ```
 
 ### Command Line Options
@@ -48,22 +48,22 @@ bundle exec ruby pdf_chapter_tree.rb -h
 
 ```bash
 # Show all levels in Markdown format (default)
-bundle exec ruby pdf_chapter_tree.rb document.pdf
+bundle exec ruby pdf_chapter_list.rb document.pdf
 
 # Show all levels in tree format
-bundle exec ruby pdf_chapter_tree.rb -t document.pdf
+bundle exec ruby pdf_chapter_list.rb -t document.pdf
 
 # Show only top level chapters
-bundle exec ruby pdf_chapter_tree.rb -d 1 document.pdf
+bundle exec ruby pdf_chapter_list.rb -d 1 document.pdf
 
 # Show up to 2 levels deep in tree format
-bundle exec ruby pdf_chapter_tree.rb -t --depth 2 document.pdf
+bundle exec ruby pdf_chapter_list.rb -t --depth 2 document.pdf
 
 # Use 4-space indent for Obsidian compatibility
-bundle exec ruby pdf_chapter_tree.rb -i 4 document.pdf
+bundle exec ruby pdf_chapter_list.rb -i 4 document.pdf
 
 # Combine 4-space indent with depth limit
-bundle exec ruby pdf_chapter_tree.rb -i 4 -d 2 document.pdf
+bundle exec ruby pdf_chapter_list.rb -i 4 -d 2 document.pdf
 ```
 
 ### Output Formats
@@ -182,7 +182,7 @@ The `-i` or `--indent` option allows you to customize the indentation spacing. T
 Example for Obsidian:
 ```bash
 # Extract chapters with 4-space indent for Obsidian
-bundle exec ruby pdf_chapter_tree.rb -i 4 document.pdf
+bundle exec ruby pdf_chapter_list.rb -i 4 document.pdf
 ```
 
 This ensures that nested lists are properly rendered in Obsidian's editor and preview modes.
