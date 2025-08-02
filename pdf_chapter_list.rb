@@ -11,13 +11,13 @@ class PDFChapterList
   end
 
   def extract_chapters
-    reader = PDF::Reader.new(@pdf_path)
-    outline_root = find_outline_root(reader)
+    @reader = PDF::Reader.new(@pdf_path)
+    outline_root = find_outline_root(@reader)
 
     return "No outline/chapters found in this PDF." unless outline_root
 
     chapters = []
-    parse_outline_item(reader, outline_root[:First], chapters, 0)
+    parse_outline_item(@reader, outline_root[:First], chapters, 0)
 
     chapters.empty? ? "No outline/chapters found in this PDF." : chapters
   rescue PDF::Reader::MalformedPDFError => e
@@ -180,8 +180,70 @@ class PDFChapterList
     # For simple page number patterns, extract directly
     return ::Regexp.last_match(1).to_i if dest =~ /^p(\d+)$/
 
-    # For complex named destinations, would need to resolve through Names dictionary
-    # This is not implemented yet as it requires complex PDF structure parsing
+    # For complex named destinations, resolve through Names dictionary
+    resolve_named_destination(@reader, dest)
+  end
+
+  def resolve_named_destination(reader, name)
+    catalog = reader.objects[reader.objects.trailer[:Root]]
+    return nil unless catalog[:Names]
+
+    names = reader.objects[catalog[:Names]]
+    return nil unless names[:Dests]
+
+    dests_root = reader.objects[names[:Dests]]
+    dest = find_named_destination(reader, name, dests_root)
+    return nil unless dest
+
+    extract_page_from_resolved_destination(reader, dest)
+  rescue StandardError
+    nil
+  end
+
+  def extract_page_from_resolved_destination(reader, dest)
+    return nil unless dest.is_a?(Array) && !dest.empty?
+
+    page_ref = dest.first
+    reader.pages.each_with_index do |page, index|
+      if page_ref.is_a?(PDF::Reader::Reference) && (page.page_object.hash == reader.objects[page_ref].hash)
+        return index + 1
+      end
+    end
+
+    nil
+  end
+
+  def find_named_destination(reader, name, node)
+    return nil unless node
+
+    result = find_in_names_array(reader, name, node[:Names]) if node[:Names]
+    return result if result
+
+    find_in_kids(reader, name, node[:Kids]) if node[:Kids]
+  end
+
+  def find_in_names_array(reader, name, names_array)
+    return nil unless names_array
+
+    # Names array contains pairs: [name1, dest1, name2, dest2, ...]
+    names_array.each_slice(2) do |n, dest_ref|
+      if n == name
+        return dest_ref.is_a?(PDF::Reader::Reference) ? reader.objects[dest_ref] : dest_ref
+      end
+    end
+
+    nil
+  end
+
+  def find_in_kids(reader, name, kids)
+    return nil unless kids
+
+    kids.each do |kid_ref|
+      kid = reader.objects[kid_ref]
+      result = find_named_destination(reader, name, kid)
+      return result if result
+    end
+
     nil
   end
 

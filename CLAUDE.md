@@ -91,6 +91,13 @@ bundle exec rubocop -A
   - Handles array-based destinations (standard format)
   - Handles named destinations (string format like "p35")
   - Resolves Action objects containing destinations
+- `resolve_named_destination` - Resolves complex named destinations through PDF Names dictionary
+  - Navigates catalog → Names → Dests structure
+  - Delegates to helper methods for better code organization
+- `extract_page_from_resolved_destination` - Extracts page number from resolved destination array
+- `find_named_destination` - Recursively searches for named destinations in the Names tree
+- `find_in_names_array` - Searches for destination in a Names array
+- `find_in_kids` - Recursively searches child nodes in the Names tree
 - `to_markdown` - Converts extracted chapters to Markdown format
   - Accepts `max_depth` parameter to limit hierarchy levels
   - Accepts `indent` parameter to customize indentation (default: 2 spaces)
@@ -178,6 +185,7 @@ The script supports multiple PDF outline destination formats:
 - **Action objects**: Destinations wrapped in Action dictionaries
 - **Reference resolution**: Automatically resolves PDF object references
 
-### Known Limitations
-- Complex named destinations that require resolution through the PDF Names dictionary are not yet fully implemented
-- Simple pattern-based named destinations (like "p35") are supported
+### Named Destination Support
+- Simple pattern-based named destinations (like "p35") are supported via direct pattern matching
+- Complex named destinations are resolved through the PDF Names dictionary structure
+- The implementation supports both flat and hierarchical Names dictionary structures
