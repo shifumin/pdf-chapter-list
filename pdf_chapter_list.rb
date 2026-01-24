@@ -375,7 +375,7 @@ def show_help(opts)
   puts "  bundle exec ruby pdf_chapter_list.rb --tree document.pdf        # Show all levels in tree format"
   puts
   puts "Requirements:"
-  puts "  - Ruby 3.4 or higher"
+  puts "  - Ruby 4.0 or higher"
   puts "  - pdf-reader gem (install with: bundle install)"
 end
 

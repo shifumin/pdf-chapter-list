@@ -8,7 +8,7 @@ This Ruby script extracts and displays the chapter structure (outline/bookmarks)
 
 ## Requirements
 
-- Ruby 3.4 or higher
+- Ruby 4.0 or higher
 - Bundler
 
 ## Installation
